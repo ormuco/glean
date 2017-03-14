@@ -535,7 +535,7 @@ def write_debian_interfaces(interfaces, sys_interfaces):
         if _exists_debian_interface(interface_name):
             continue
 
-        iface_path = os.path.join(eni_d_path, '%s.cfg' % interface_name)
+        iface_path = os.path.join(eni_d_path, '%s-%s.cfg' % (interface['priority'], interface_name))
 
         if interface['type'] == 'ipv4_dhcp':
             header = "auto {0}\n".format(interface_name)
@@ -734,6 +734,7 @@ def get_config_drive_interfaces(net):
                     phys[phy]['ethernet_mac_address'].lower())
         link['mac_address'] = link.pop(
             'vlan_mac_address', vlan_link['ethernet_mac_address']).lower()
+        link['priority'] = 30
 
     for link in bonds.values():
         phy_macs = []
@@ -747,10 +748,12 @@ def get_config_drive_interfaces(net):
         if link['id'] not in networks:
             link['type'] = 'manual'
             interfaces[link['id']] = link
+        link['priority'] = 20
 
     for link in phys.values():
         link['mac_address'] = link.pop('ethernet_mac_address').lower()
         link['mtu'] = link.pop('mtu')
+        link['priority'] = 10
         if link['id'] not in networks:
             link['type'] = 'manual'
             interfaces[link['id']] = link
