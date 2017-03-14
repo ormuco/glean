@@ -540,6 +540,7 @@ def write_debian_interfaces(interfaces, sys_interfaces):
         if interface['type'] == 'ipv4_dhcp':
             header = "auto {0}\n".format(interface_name)
             result = "iface {0} inet dhcp\n".format(interface_name)
+            result += "    mtu {0}\n".format(interface['mtu'])
             if vlan_raw_device is not None:
                 result += "    vlan-raw-device {0}\n".format(vlan_raw_device)
                 result += "    hw-mac-address {0}\n".format(
@@ -571,6 +572,7 @@ def write_debian_interfaces(interfaces, sys_interfaces):
         if interface['type'] == 'manual':
             header = "auto {0}\n".format(interface_name)
             result = "iface {0} inet manual\n".format(interface_name)
+            result += "    mtu {0}\n".format(interface['mtu'])
             if 'bond_master' in interface:
                 result += "    bond-master {0}\n".format(
                     interface['bond_master'])
@@ -632,6 +634,7 @@ def write_debian_interfaces(interfaces, sys_interfaces):
             result += "    bond-slaves none\n"
             result += slaves_add.format(interface_name, slaves)
             result += slaves_del.format(interface_name, slaves)
+        result += "    mtu {0}\n".format(interface['mtu'])
         result += "    address {0}\n".format(interface['ip_address'])
 
         if interface['type'] == 'ipv4':
@@ -747,6 +750,7 @@ def get_config_drive_interfaces(net):
 
     for link in phys.values():
         link['mac_address'] = link.pop('ethernet_mac_address').lower()
+        link['mtu'] = link.pop('mtu')
         if link['id'] not in networks:
             link['type'] = 'manual'
             interfaces[link['id']] = link
